@@ -11,7 +11,6 @@
 
 package net.ree_jp.floatingchat.event
 
-import cn.nukkit.Player
 import cn.nukkit.Server
 import cn.nukkit.entity.Entity
 import cn.nukkit.entity.data.EntityMetadata
@@ -23,13 +22,14 @@ import cn.nukkit.level.Position
 import cn.nukkit.network.protocol.AddPlayerPacket
 import cn.nukkit.network.protocol.MoveEntityAbsolutePacket
 import cn.nukkit.network.protocol.RemoveEntityPacket
-import cn.nukkit.network.protocol.SetEntityLinkPacket
 import net.ree_jp.floatingchat.FloatingChatPlugin
 import java.util.*
 
 class EventListener : Listener {
 
     private val show = mutableMapOf<String, Long>()
+
+    private val chat = mutableMapOf<String, String>()
 
     @EventHandler
     fun onChat(ev: PlayerChatEvent) {
@@ -40,6 +40,7 @@ class EventListener : Listener {
             deleteIfExists(xuid)
             val particle = createFloatingText(p.add(0.0, 1.5), ev.message)
             show[xuid] = particle
+            chat[xuid] = ev.message
             Server.getInstance().scheduler.scheduleDelayedTask(
                 FloatingChatPlugin.instance,
                 {
@@ -54,9 +55,10 @@ class EventListener : Listener {
     fun onMove(ev: PlayerMoveEvent) {
         val p = ev.player
         val xuid = p.loginChainData.xuid
-        val particle = show[xuid] ?: return
+        val eid = show[xuid] ?: return
+        val text = chat[xuid] ?: return
 
-        moveFloatingText(particle, p)
+        reCreateFloatingText(eid, text, p.add(0.0, 1.5))
     }
 
     private fun deleteIfExists(xuid: String) {
@@ -65,7 +67,10 @@ class EventListener : Listener {
     }
 
     private fun createFloatingText(pos: Position, title: String): Long {
-        val eid = Random().nextLong()
+        return createFloatingText(pos, title, Random().nextLong())
+    }
+
+    private fun createFloatingText(pos: Position, title: String, eid: Long): Long {
         val pk = AddPlayerPacket()
         pk.uuid = UUID.randomUUID()
         pk.username = title
@@ -80,15 +85,9 @@ class EventListener : Listener {
         return eid
     }
 
-    private fun linkFloatingText(eid: Long, p: Player) {
-        val pk = SetEntityLinkPacket()
-        pk.vehicleUniqueId = p.id
-        pk.riderUniqueId = eid
-        for (player in p.level.players.values) {
-            p.dataPacket(pk)
-        }
-    }
-
+    /**
+     * 動かないので分かるかたいたらお願いします
+     */
     private fun moveFloatingText(eid: Long, pos: Position) {
         val pk = MoveEntityAbsolutePacket()
         pk.eid = eid
@@ -96,6 +95,14 @@ class EventListener : Listener {
         for (p in pos.level.players.values) {
             p.dataPacket(pk)
         }
+    }
+
+    /**
+     * 上のが動かないから臨時で
+     */
+    private fun reCreateFloatingText(eid: Long, title: String, pos: Position) {
+        deleteFloatingText(eid)
+        createFloatingText(pos, title, eid)
     }
 
     private fun deleteFloatingText(eid: Long) {
