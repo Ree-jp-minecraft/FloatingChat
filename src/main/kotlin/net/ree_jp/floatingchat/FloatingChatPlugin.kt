@@ -11,7 +11,9 @@
 
 package net.ree_jp.floatingchat
 
+import cn.nukkit.entity.Entity
 import cn.nukkit.plugin.PluginBase
+import net.ree_jp.floatingchat.entity.FloatingChatEntity
 import net.ree_jp.floatingchat.event.EventListener
 
 class FloatingChatPlugin : PluginBase() {
@@ -26,6 +28,7 @@ class FloatingChatPlugin : PluginBase() {
     }
 
     override fun onEnable() {
+        Entity.registerEntity("FloatingChat", FloatingChatEntity::class.java)
         server.pluginManager.registerEvents(EventListener(), this)
         super.onEnable()
     }
