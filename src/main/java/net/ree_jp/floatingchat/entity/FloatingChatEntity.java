@@ -19,7 +19,7 @@ public class FloatingChatEntity extends Entity {
 
     @Override
     public int getNetworkId() {
-        return -1;
+        return 63;
     }
 
     public FloatingChatEntity(FullChunk chunk, CompoundTag nbt) {

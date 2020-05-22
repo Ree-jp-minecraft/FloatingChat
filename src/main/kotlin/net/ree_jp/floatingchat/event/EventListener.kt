@@ -30,9 +30,10 @@ class EventListener : Listener {
 
         if (p.hasPermission("floatingChat.show")) {
             val entity = particle[xuid] ?: Entity.createEntity("FloatingChat", p)
-            entity.scale = 0f
+            entity.setScale(0f)
             entity.nameTag = ev.message
             entity.setNameTagVisible()
+            entity.spawnToAll()
             particle[xuid] = entity
             Server.getInstance().scheduler.scheduleDelayedTask(
                 FloatingChatPlugin.instance,
