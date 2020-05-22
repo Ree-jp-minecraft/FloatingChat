@@ -32,4 +32,13 @@ class FloatingChatPlugin : PluginBase() {
         server.pluginManager.registerEvents(EventListener(), this)
         super.onEnable()
     }
+
+    override fun onDisable() {
+        for (level in server.levels.values) {
+            for (entity in level.entities) {
+                if (entity is FloatingChatEntity) entity.close()
+            }
+        }
+        super.onDisable()
+    }
 }
