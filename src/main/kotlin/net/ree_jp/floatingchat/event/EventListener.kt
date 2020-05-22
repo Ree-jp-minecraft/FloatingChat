@@ -33,6 +33,7 @@ class EventListener : Listener {
             entity.setScale(0f)
             entity.nameTag = ev.message
             entity.setNameTagVisible()
+            entity.setNameTagAlwaysVisible()
             entity.spawnToAll()
             particle[xuid] = entity
             Server.getInstance().scheduler.scheduleDelayedTask(
